@@ -37,12 +37,13 @@ def index():
 def new_task():
     form = TaskForm()
     if form.validate_on_submit():
+        due_date = datetime.strptime(form.due_date.data, '%Y-%m-%dT%H:%M')
         task = Task(
             title=form.title.data,
             description=form.description.data,
             status=form.status.data,
             user_id=current_user.id,
-            due_date=form.due_date.data
+            due_date=due_date
         )
         db.session.add(task)
         db.session.commit()
@@ -60,10 +61,11 @@ def edit_task(id):
         
     form = TaskForm()
     if form.validate_on_submit():
+        due_date = datetime.strptime(form.due_date.data, '%Y-%m-%dT%H:%M')
         task.title = form.title.data
         task.description = form.description.data
         task.status = form.status.data
-        task.due_date = form.due_date.data
+        task.due_date = due_date
         if task.status == 'completed' and not task.finished:
             task.finished = datetime.utcnow()
         elif task.status != 'completed':
@@ -76,7 +78,7 @@ def edit_task(id):
         form.title.data = task.title
         form.description.data = task.description
         form.status.data = task.status
-        form.due_date.data = task.due_date
+        form.due_date.data = task.due_date.strftime('%Y-%m-%dT%H:%M') if task.due_date else ''
         
     return render_template('task/edit.html', title='Edit Task', form=form)
 
