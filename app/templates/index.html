@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Tasks</h1>
+    <a href="{{ url_for('main.new_task') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Task
+    </a>
+</div>
+
+{% if overdue_tasks %}
+<div class="alert alert-danger mb-4">
+    <h5 class="alert-heading"><i class="fas fa-exclamation-circle"></i> Overdue Tasks</h5>
+    <ul class="list-unstyled mb-0">
+        {% for task in overdue_tasks %}
+        <li class="mb-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>{{ task.title }} - Due: {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}</span>
+                <div class="btn-group">
+                    <a href="{{ url_for('main.edit_task', id=task.id) }}" class="btn btn-sm btn-outline-danger">
+                        <i class="fas fa-edit"></i> Update
+                    </a>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">All Tasks</h5>
+        <span class="badge bg-light text-dark">
+            {{ tasks|length }} task(s)
+        </span>
+    </div>
+    <div class="card-body">
+        {% if tasks %}
+        <div class="list-group">
+            {% for task in tasks %}
+            <div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ task.title }}</h5>
+                        <p class="mb-1">{{ task.description }}</p>
+                        <small class="text-muted">
+                            Due: {{ task.due_date.strftime('%Y-%m-%d %H:%M') }}
+                            {% if task.finished %}
+                            | Completed: {{ task.finished.strftime('%Y-%m-%d %H:%M') }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge {% if task.status == 'completed' %}bg-success{% elif task.status == 'in_progress' %}bg-warning{% else %}bg-secondary{% endif %} me-2">
+                            {{ task.status|replace('_', ' ')|title }}
+                        </span>
+                        <div class="btn-group">
+                            <a href="{{ url_for('main.edit_task', id=task.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('main.delete_task', id=task.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No tasks found. Create your first task!</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
